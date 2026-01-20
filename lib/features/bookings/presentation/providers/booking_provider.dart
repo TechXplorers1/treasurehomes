@@ -31,7 +31,7 @@ class BookingNotifier extends AsyncNotifier<void> {
     }
 
     // Fetch user data from Firestore using the UID
-    UserEntity? user;
+    late UserEntity user;
     try {
       final userDoc = await _firestore.collection('users').doc(firebaseUser.uid).get();
       if (userDoc.exists) {
@@ -61,15 +61,11 @@ class BookingNotifier extends AsyncNotifier<void> {
       );
     }
 
-    if (user == null) {
-      throw Exception('Failed to retrieve user data');
-    }
-
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final booking = BookingEntity(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        userId: user!.id,
+        userId: user.id,
         serviceId: serviceId,
         serviceName: serviceName,
         bookingDate: bookingDate,
