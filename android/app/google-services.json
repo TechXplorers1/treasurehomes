@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "631395287647",
+    "project_id": "treasurehomes",
+    "storage_bucket": "treasurehomes.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:631395287647:android:8c2d684fcc9d8bd04e11ea",
+        "android_client_info": {
+          "package_name": "com.treasurehome.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuPXmxaDnbYZm71-rcA_PLDdu9GYFLLuk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

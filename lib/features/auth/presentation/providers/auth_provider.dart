@@ -1,10 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../data/repositories/mock_auth_repository.dart';
 
 // Provider for the AuthController (Notifier)
 final authStateProvider = AsyncNotifierProvider<AuthNotifier, UserEntity?>(() {
   return AuthNotifier();
+});
+
+// Listen to Firebase Auth state changes
+final firebaseAuthStateProvider = StreamProvider<User?>((ref) {
+  return FirebaseAuth.instance.authStateChanges();
 });
 
 class AuthNotifier extends AsyncNotifier<UserEntity?> {

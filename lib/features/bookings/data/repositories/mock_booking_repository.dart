@@ -1,11 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/booking_entity.dart';
+import 'firebase_booking_repository.dart';
 
-abstract class BookingRepository {
-  Future<String> createBooking(BookingEntity booking);
-  Future<List<BookingEntity>> getUserBookings(String userId);
-}
+// Use Firebase Realtime Database for bookings
+final bookingRepositoryProvider = Provider<BookingRepository>((ref) {
+  return FirebaseBookingRepository();
+});
 
+// Keep MockBookingRepository for testing if needed
 class MockBookingRepository implements BookingRepository {
   final List<BookingEntity> _bookings = [];
 
@@ -22,7 +24,3 @@ class MockBookingRepository implements BookingRepository {
     return _bookings.where((b) => b.userId == userId).toList();
   }
 }
-
-final bookingRepositoryProvider = Provider<BookingRepository>((ref) {
-  return MockBookingRepository();
-});

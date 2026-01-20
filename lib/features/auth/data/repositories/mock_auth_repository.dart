@@ -1,7 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
+import 'firebase_auth_repository.dart';
 
+// Use Firebase Auth Repository for production
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  return FirebaseAuthRepository();
+});
+
+// Keep MockAuthRepository for testing if needed
 class MockAuthRepository implements AuthRepository {
   UserEntity? _currentUser;
 
@@ -57,7 +64,3 @@ class MockAuthRepository implements AuthRepository {
     return newUser;
   }
 }
-
-final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  return MockAuthRepository();
-});
