@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/entities/service_entity.dart';
-
-import '../../data/repositories/mock_service_repository.dart';
+import '../../presentation/providers/service_providers.dart';
+import 'service_content_page.dart';
 
 class ServiceDetailsPage extends ConsumerWidget {
   final String serviceId;
@@ -90,7 +90,27 @@ class ServiceDetailsPage extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(service.description),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ServiceContentPage(
+                                  serviceId: service.id,
+                                  serviceName: service.name,
+                                  content: service.detailedDescription ?? '',
+                                  price: service.price,
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Text('View Details'),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(

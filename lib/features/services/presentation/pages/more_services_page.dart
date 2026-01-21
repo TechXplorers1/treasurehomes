@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../services/data/repositories/mock_service_repository.dart';
+import '../../../services/presentation/providers/service_providers.dart';
 
 class MoreServicesPage extends ConsumerWidget {
   const MoreServicesPage({super.key});
@@ -11,21 +11,19 @@ class MoreServicesPage extends ConsumerWidget {
     final servicesAsync = ref.watch(servicesProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('More Services'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('More Services'), elevation: 0),
       body: servicesAsync.when(
         data: (services) {
           // Filter to show only "more" services (Home Remodeling and Home Addition & Extension)
           final moreServices = services
-              .where((s) => s.category == 'Remodeling' && (s.id == '5' || s.id == '6'))
+              .where(
+                (s) =>
+                    s.category == 'Remodeling' && (s.id == '5' || s.id == '6'),
+              )
               .toList();
 
           if (moreServices.isEmpty) {
-            return const Center(
-              child: Text('No services available'),
-            );
+            return const Center(child: Text('No services available'));
           }
 
           return GridView.builder(
@@ -48,12 +46,8 @@ class MoreServicesPage extends ConsumerWidget {
             },
           );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stackTrace) => Center(
-          child: Text('Error: $error'),
-        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(child: Text('Error: $error')),
       ),
     );
   }
@@ -63,10 +57,7 @@ class _ServiceCard extends StatelessWidget {
   final dynamic service;
   final VoidCallback onTap;
 
-  const _ServiceCard({
-    required this.service,
-    required this.onTap,
-  });
+  const _ServiceCard({required this.service, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -92,8 +83,8 @@ class _ServiceCard extends StatelessWidget {
               ),
               child: Center(
                 child: Icon(
-                  service.name.contains('Addition') 
-                      ? Icons.add_home 
+                  service.name.contains('Addition')
+                      ? Icons.add_home
                       : Icons.home_repair_service,
                   size: 48,
                   color: theme.primaryColor,

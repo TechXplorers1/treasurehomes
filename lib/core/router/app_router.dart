@@ -7,6 +7,7 @@ import '../../features/home/presentation/profile_screen.dart';
 import '../../features/home/presentation/scaffold_with_navbar.dart';
 import '../../features/services/presentation/pages/service_details_page.dart';
 import '../../features/services/presentation/pages/more_services_page.dart';
+import '../../features/services/presentation/pages/services_by_category_page.dart';
 import '../../features/bookings/presentation/pages/booking_page.dart';
 import '../../features/subscriptions/presentation/pages/subscription_plans_page.dart';
 import '../../features/admin/presentation/pages/admin_dashboard_page.dart';
@@ -65,6 +66,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           return ServiceDetailsPage(serviceId: id);
+        },
+      ),
+      GoRoute(
+        path: '/services-by-category/:categoryName',
+        builder: (context, state) {
+          final categoryName = state.pathParameters['categoryName']!;
+          return ServicesByCategoryPage(categoryName: categoryName);
         },
       ),
       GoRoute(

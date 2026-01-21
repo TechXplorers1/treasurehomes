@@ -22,31 +22,50 @@ class BookingPage extends ConsumerStatefulWidget {
 
 class _BookingPageState extends ConsumerState<BookingPage> {
   DateTime? _selectedDate;
+  TimeOfDay? _selectedTime;
   final _addressController = TextEditingController();
+  final _notesController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
     _addressController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
   Future<void> _submitBooking() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedDate == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select a date')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a date')),
+      );
       return;
     }
+    if (_selectedTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a time')),
+      );
+      return;
+    }
+
+    // Combine date and time
+    final bookingDateTime = DateTime(
+      _selectedDate!.year,
+      _selectedDate!.month,
+      _selectedDate!.day,
+      _selectedTime!.hour,
+      _selectedTime!.minute,
+    );
 
     await ref
         .read(bookingStateProvider.notifier)
         .createBooking(
           serviceId: widget.serviceId,
           serviceName: widget.serviceName,
-          bookingDate: _selectedDate!,
+          bookingDate: bookingDateTime,
           address: _addressController.text,
+          notes: _notesController.text.isEmpty ? null : _notesController.text,
           price: widget.price,
         );
   }
@@ -86,7 +105,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Select Date & Time',
+                'Select Date',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
@@ -95,9 +114,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                 title: Text(
                   _selectedDate == null
                       ? 'Pick a date'
-                      : DateFormat(
-                          'MMM dd, yyyy - hh:mm a',
-                        ).format(_selectedDate!),
+                      : DateFormat('MMM dd, yyyy').format(_selectedDate!),
                 ),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () async {
@@ -108,21 +125,36 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                     lastDate: DateTime.now().add(const Duration(days: 30)),
                   );
                   if (date != null && mounted) {
-                    final time = await showTimePicker(
-                      context: context,
-                      initialTime: TimeOfDay.now(),
-                    );
-                    if (time != null) {
-                      setState(() {
-                        _selectedDate = DateTime(
-                          date.year,
-                          date.month,
-                          date.day,
-                          time.hour,
-                          time.minute,
-                        );
-                      });
-                    }
+                    setState(() {
+                      _selectedDate = date;
+                    });
+                  }
+                },
+              ),
+              const Divider(),
+              const SizedBox(height: 16),
+              Text(
+                'Select Time',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  _selectedTime == null
+                      ? 'Pick a time'
+                      : _selectedTime!.format(context),
+                ),
+                trailing: const Icon(Icons.access_time),
+                onTap: () async {
+                  final time = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.now(),
+                  );
+                  if (time != null && mounted) {
+                    setState(() {
+                      _selectedTime = time;
+                    });
                   }
                 },
               ),
@@ -138,11 +170,27 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                 decoration: const InputDecoration(
                   hintText: 'Enter your address',
                   border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.location_on),
                 ),
                 maxLines: 3,
                 validator: (value) => value == null || value.isEmpty
                     ? 'Address is required'
                     : null,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Additional Notes (Optional)',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _notesController,
+                decoration: const InputDecoration(
+                  hintText: 'Add any special instructions or notes',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.note),
+                ),
+                maxLines: 3,
               ),
               const SizedBox(height: 24),
               Row(

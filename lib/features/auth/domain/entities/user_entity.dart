@@ -8,6 +8,7 @@ class UserEntity extends Equatable {
   final String name;
   final String? phoneNumber;
   final UserRole role;
+  final DateTime? createdAt;
 
   const UserEntity({
     required this.id,
@@ -15,8 +16,9 @@ class UserEntity extends Equatable {
     required this.name,
     this.phoneNumber,
     this.role = UserRole.customer,
+    this.createdAt,
   });
 
   @override
-  List<Object?> get props => [id, email, name, phoneNumber, role];
+  List<Object?> get props => [id, email, name, phoneNumber, role, createdAt];
 }

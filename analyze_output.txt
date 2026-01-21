@@ -1,0 +1,4 @@
+Analyzing customer_details_page.dart...                         
+
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\admin\presentation\pages\customer_details_page.dart:261:32 - deprecated_member_use
+

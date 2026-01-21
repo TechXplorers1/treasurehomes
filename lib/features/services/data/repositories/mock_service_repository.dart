@@ -1,11 +1,5 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/service_entity.dart';
-
-abstract class ServiceRepository {
-  Future<List<ServiceEntity>> getServices();
-  Future<ServiceEntity> getServiceById(String id);
-  Future<List<ServiceEntity>> getServicesByCategory(String category);
-}
+import '../../domain/repositories/service_repository.dart';
 
 class MockServiceRepository implements ServiceRepository {
   final List<ServiceEntity> _services = [
@@ -77,17 +71,17 @@ class MockServiceRepository implements ServiceRepository {
   }
 
   @override
-  Future<List<ServiceEntity>> getServicesByCategory(String category) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    return _services.where((s) => s.category == category).toList();
+  Future<void> addService(ServiceEntity service) async {
+    // Mock implementation
+  }
+
+  @override
+  Future<void> updateService(ServiceEntity service) async {
+    // Mock implementation
+  }
+
+  @override
+  Future<void> deleteService(String id) async {
+    // Mock implementation
   }
 }
-
-final serviceRepositoryProvider = Provider<ServiceRepository>((ref) {
-  return MockServiceRepository();
-});
-
-final servicesProvider = FutureProvider<List<ServiceEntity>>((ref) async {
-  final repo = ref.watch(serviceRepositoryProvider);
-  return repo.getServices();
-});

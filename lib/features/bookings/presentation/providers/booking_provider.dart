@@ -2,7 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/booking_entity.dart';
-import '../../data/repositories/mock_booking_repository.dart';
+
+import 'package:home_services_app/features/bookings/presentation/providers/booking_providers.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 
@@ -23,6 +24,7 @@ class BookingNotifier extends AsyncNotifier<void> {
     required DateTime bookingDate,
     required String address,
     required double price,
+    String? notes,
   }) async {
     // Get current Firebase user
     final firebaseUser = FirebaseAuth.instance.currentUser;
@@ -33,7 +35,10 @@ class BookingNotifier extends AsyncNotifier<void> {
     // Fetch user data from Firestore using the UID
     late UserEntity user;
     try {
-      final userDoc = await _firestore.collection('users').doc(firebaseUser.uid).get();
+      final userDoc = await _firestore
+          .collection('users')
+          .doc(firebaseUser.uid)
+          .get();
       if (userDoc.exists) {
         final data = userDoc.data() as Map<String, dynamic>;
         user = UserEntity(
@@ -70,6 +75,7 @@ class BookingNotifier extends AsyncNotifier<void> {
         serviceName: serviceName,
         bookingDate: bookingDate,
         address: address,
+        notes: notes,
         status: BookingStatus.pending,
         totalPrice: price,
       );
@@ -96,7 +102,13 @@ final userBookingsProvider = FutureProvider<List<BookingEntity>>((ref) async {
   // Listen to Firebase auth changes to get current user
   final firebaseUser = ref.watch(firebaseAuthStateProvider).value;
   if (firebaseUser == null) return [];
-  
+
   final repo = ref.watch(bookingRepositoryProvider);
   return repo.getUserBookings(firebaseUser.uid);
 });
+
+final specificUserBookingsProviderFamily =
+    FutureProvider.family<List<BookingEntity>, String>((ref, userId) async {
+      final repo = ref.watch(bookingRepositoryProvider);
+      return repo.getUserBookings(userId);
+    });

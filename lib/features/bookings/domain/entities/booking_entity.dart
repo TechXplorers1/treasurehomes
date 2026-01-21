@@ -9,6 +9,7 @@ class BookingEntity extends Equatable {
   final String serviceName;
   final DateTime bookingDate;
   final String address;
+  final String? notes;
   final BookingStatus status;
   final double totalPrice;
 
@@ -19,6 +20,7 @@ class BookingEntity extends Equatable {
     required this.serviceName,
     required this.bookingDate,
     required this.address,
+    this.notes,
     required this.status,
     required this.totalPrice,
   });
@@ -31,6 +33,7 @@ class BookingEntity extends Equatable {
     serviceName,
     bookingDate,
     address,
+    notes,
     status,
     totalPrice,
   ];

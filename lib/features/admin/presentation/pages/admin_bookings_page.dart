@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../../data/repositories/mock_admin_repository.dart';
+import '../../../bookings/presentation/providers/booking_providers.dart';
 
 class AdminBookingsPage extends ConsumerWidget {
   const AdminBookingsPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bookingsAsync = ref.watch(adminBookingsProvider);
+    final bookingsAsync = ref.watch(adminAllBookingsProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('All Bookings')),

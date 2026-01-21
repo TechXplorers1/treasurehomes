@@ -66,20 +66,33 @@ class FirebaseAuthRepository implements AuthRepository {
 
       if (userDoc.exists) {
         final data = userDoc.data() as Map<String, dynamic>;
+
+        // Force admin role for specific email
+        UserRole role = _parseUserRole(data['role'] ?? 'customer');
+        if (email == 'admin@gmail.com') {
+          role = UserRole.admin;
+        }
+
         return UserEntity(
           id: user.uid,
           email: user.email ?? '',
           name: data['name'] ?? user.displayName ?? 'User',
-          role: _parseUserRole(data['role'] ?? 'customer'),
+          role: role,
         );
       }
 
       // Fallback if user doc doesn't exist
+      // Force admin role for specific email
+      UserRole role = UserRole.customer;
+      if (email == 'admin@gmail.com') {
+        role = UserRole.admin;
+      }
+
       return UserEntity(
         id: user.uid,
         email: user.email ?? '',
         name: user.displayName ?? 'User',
-        role: UserRole.customer,
+        role: role,
       );
     } on FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
@@ -110,20 +123,33 @@ class FirebaseAuthRepository implements AuthRepository {
 
       if (userDoc.exists) {
         final data = userDoc.data() as Map<String, dynamic>;
+
+        // Force admin role for specific email
+        UserRole role = _parseUserRole(data['role'] ?? 'customer');
+        if (user.email == 'admin@gmail.com') {
+          role = UserRole.admin;
+        }
+
         return UserEntity(
           id: user.uid,
           email: user.email ?? '',
           name: data['name'] ?? user.displayName ?? 'User',
-          role: _parseUserRole(data['role'] ?? 'customer'),
+          role: role,
         );
       }
 
       // Fallback
+      // Force admin role for specific email
+      UserRole role = UserRole.customer;
+      if (user.email == 'admin@gmail.com') {
+        role = UserRole.admin;
+      }
+
       return UserEntity(
         id: user.uid,
         email: user.email ?? '',
         name: user.displayName ?? 'User',
-        role: UserRole.customer,
+        role: role,
       );
     } catch (e) {
       throw Exception('Failed to get current user: $e');

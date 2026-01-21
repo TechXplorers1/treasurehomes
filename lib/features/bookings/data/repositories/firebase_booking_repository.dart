@@ -1,11 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/booking_entity.dart';
-
-abstract class BookingRepository {
-  Future<String> createBooking(BookingEntity booking);
-  Future<List<BookingEntity>> getUserBookings(String userId);
-}
+import 'booking_repository.dart';
 
 class FirebaseBookingRepository implements BookingRepository {
   final _firestore = FirebaseFirestore.instance;
@@ -20,6 +16,7 @@ class FirebaseBookingRepository implements BookingRepository {
         'serviceName': booking.serviceName,
         'bookingDate': booking.bookingDate.toIso8601String(),
         'address': booking.address,
+        'notes': booking.notes,
         'status': booking.status.toString().split('.').last,
         'totalPrice': booking.totalPrice,
         'createdAt': FieldValue.serverTimestamp(),
@@ -42,33 +39,49 @@ class FirebaseBookingRepository implements BookingRepository {
       if (snapshot.docs.isEmpty) {
         return [];
       }
-
-      final bookings = <BookingEntity>[];
-
-      for (final doc in snapshot.docs) {
-        try {
-          final bookingData = doc.data();
-          bookings.add(
-            BookingEntity(
-              id: bookingData['id'] as String,
-              userId: bookingData['userId'] as String,
-              serviceId: bookingData['serviceId'] as String,
-              serviceName: bookingData['serviceName'] as String,
-              bookingDate: DateTime.parse(bookingData['bookingDate'] as String),
-              address: bookingData['address'] as String,
-              status: _parseStatus(bookingData['status'] as String),
-              totalPrice: (bookingData['totalPrice'] as num).toDouble(),
-            ),
-          );
-        } catch (e) {
-          print('Error parsing booking: $e');
-        }
-      }
-
-      return bookings;
+      return _mapQuerySnapshotToBookings(snapshot);
     } catch (e) {
       throw Exception('Failed to fetch user bookings: $e');
     }
+  }
+
+  @override
+  Future<List<BookingEntity>> getAllBookings() async {
+    try {
+      final snapshot = await _firestore
+          .collection('bookings')
+          .orderBy('bookingDate', descending: true)
+          .get();
+      return _mapQuerySnapshotToBookings(snapshot);
+    } catch (e) {
+      throw Exception('Failed to fetch all bookings: $e');
+    }
+  }
+
+  List<BookingEntity> _mapQuerySnapshotToBookings(QuerySnapshot snapshot) {
+    final bookings = <BookingEntity>[];
+    for (final doc in snapshot.docs) {
+      try {
+        final bookingData = doc.data() as Map<String, dynamic>;
+        bookings.add(
+          BookingEntity(
+            id: bookingData['id'] as String,
+            userId: bookingData['userId'] as String? ?? '',
+            serviceId: bookingData['serviceId'] as String? ?? '',
+            serviceName:
+                bookingData['serviceName'] as String? ?? 'Unknown Service',
+            bookingDate: DateTime.parse(bookingData['bookingDate'] as String),
+            address: bookingData['address'] as String? ?? '',
+            notes: bookingData['notes'] as String?,
+            status: _parseStatus(bookingData['status'] as String? ?? 'pending'),
+            totalPrice: (bookingData['totalPrice'] as num?)?.toDouble() ?? 0.0,
+          ),
+        );
+      } catch (e) {
+        print('Error parsing booking ${doc.id}: $e');
+      }
+    }
+    return bookings;
   }
 
   BookingStatus _parseStatus(String status) {
@@ -85,8 +98,3 @@ class FirebaseBookingRepository implements BookingRepository {
     }
   }
 }
-
-// Provider
-final bookingRepositoryProvider = Provider<BookingRepository>((ref) {
-  return FirebaseBookingRepository();
-});
