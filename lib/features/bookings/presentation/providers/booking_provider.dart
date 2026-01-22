@@ -48,7 +48,7 @@ class BookingNotifier extends AsyncNotifier<void> {
           role: _parseRole(data['role'] ?? 'customer'),
         );
       } else {
-        // User doc doesn't exist, create a basic user object from Firebase Auth
+        // User doc doesn't exist, create a basic user object from Firebase Auth - djhbhjbjhxcbjhbhb
         user = UserEntity(
           id: firebaseUser.uid,
           email: firebaseUser.email ?? '',
