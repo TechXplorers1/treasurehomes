@@ -8,11 +8,16 @@ import '../../features/home/presentation/scaffold_with_navbar.dart';
 import '../../features/services/presentation/pages/service_details_page.dart';
 import '../../features/services/presentation/pages/more_services_page.dart';
 import '../../features/services/presentation/pages/services_by_category_page.dart';
+import '../../features/home/presentation/categories_page.dart';
 import '../../features/bookings/presentation/pages/booking_page.dart';
 import '../../features/subscriptions/presentation/pages/subscription_plans_page.dart';
 import '../../features/admin/presentation/pages/admin_dashboard_page.dart';
 import '../../features/admin/presentation/pages/admin_users_page.dart';
 import '../../features/admin/presentation/pages/admin_bookings_page.dart';
+import '../../features/admin/presentation/pages/admin_profile_page.dart';
+import '../../features/admin/presentation/pages/admin_categories_page.dart';
+import '../../features/admin/presentation/pages/add_edit_category_page.dart';
+import '../../features/categories/domain/entities/category_entity.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 
 import '../../features/auth/presentation/pages/signup_page.dart';
@@ -80,6 +85,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const MoreServicesPage(),
       ),
       GoRoute(
+        path: '/categories',
+        builder: (context, state) => const CategoriesPage(),
+      ),
+      GoRoute(
         path: '/book_service',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>;
@@ -105,6 +114,27 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'bookings',
             builder: (context, state) => const AdminBookingsPage(),
+          ),
+          GoRoute(
+            path: 'profile',
+            builder: (context, state) => const AdminProfilePage(),
+          ),
+          GoRoute(
+            path: 'categories',
+            builder: (context, state) => const AdminCategoriesPage(),
+            routes: [
+              GoRoute(
+                path: 'add',
+                builder: (context, state) => const AddEditCategoryPage(),
+              ),
+              GoRoute(
+                path: 'edit/:id',
+                builder: (context, state) {
+                  final category = state.extra as CategoryEntity?;
+                  return AddEditCategoryPage(category: category);
+                },
+              ),
+            ],
           ),
         ],
       ),

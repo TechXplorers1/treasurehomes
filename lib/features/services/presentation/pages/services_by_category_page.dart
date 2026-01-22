@@ -114,27 +114,6 @@ class ServicesByCategoryPage extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      Column(
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              context.push('/service/${service.id}');
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              textStyle: GoogleFonts.poppins(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            child: const Text('View Page'),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(width: 4),
                     ],
                   ),
                 ),

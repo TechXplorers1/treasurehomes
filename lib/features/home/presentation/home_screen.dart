@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../auth/presentation/providers/auth_provider.dart';
 import '../../services/presentation/providers/service_providers.dart';
+import '../../categories/presentation/providers/category_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -44,7 +45,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   _buildSearchBar(theme),
                   const SizedBox(height: 30),
                   _buildSectionHeader(context, 'Explore Categories', () {
-                    context.push('/more-services');
+                    context.push('/categories');
                   }),
                   const SizedBox(height: 16),
                   _buildCategoriesList(context),
@@ -226,82 +227,82 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildCategoriesList(BuildContext context) {
-    final categories = [
-      {
-        'icon': Icons.plumbing,
-        'label': 'Plumbing',
-        'color': 0xFFE3F2FD,
-        'iconColor': 0xFF1976D2,
-      },
-      {
-        'icon': Icons.electrical_services,
-        'label': 'Electrical',
-        'color': 0xFFFFF8E1,
-        'iconColor': 0xFFFFA000,
-      },
-      {
-        'icon': Icons.cleaning_services,
-        'label': 'Cleaning',
-        'color': 0xFFE8F5E9,
-        'iconColor': 0xFF388E3C,
-      },
-      {
-        'icon': Icons.construction,
-        'label': 'Repair',
-        'color': 0xFFFCE4EC,
-        'iconColor': 0xFFC2185B,
-      },
-      {
-        'icon': Icons.ac_unit,
-        'label': 'AC',
-        'color': 0xFFE0F7FA,
-        'iconColor': 0xFF00ACC1,
-      },
-    ];
+    final categoriesAsync = ref.watch(categoriesProvider);
 
     return SizedBox(
       height: 100,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        itemCount: categories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 16),
-        itemBuilder: (context, index) {
-          final cat = categories[index];
-          return GestureDetector(
-            onTap: () {
-              context.push('/services-by-category/${cat['label']}');
+      child: categoriesAsync.when(
+        data: (categories) {
+          if (categories.isEmpty) return const SizedBox();
+          // Limit to 5 for the horizontal list
+          final displayCategories = categories.take(5).toList();
+
+          return ListView.separated(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            itemCount: displayCategories.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            itemBuilder: (context, index) {
+              final cat = displayCategories[index];
+              return GestureDetector(
+                onTap: () {
+                  context.push('/services-by-category/${cat.name}');
+                },
+                child: Column(
+                  children: [
+                    Container(
+                      width: 65,
+                      height: 65,
+                      decoration: BoxDecoration(
+                        color: Color(cat.color),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        _getIconData(cat.iconName),
+                        color: Colors.black54,
+                        size: 28,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      cat.name,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+              );
             },
-            child: Column(
-              children: [
-                Container(
-                  width: 65,
-                  height: 65,
-                  decoration: BoxDecoration(
-                    color: Color(cat['color'] as int),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    cat['icon'] as IconData,
-                    color: Color(cat['iconColor'] as int),
-                    size: 28,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  cat['label'] as String,
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
-            ),
           );
         },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, __) => const SizedBox(),
       ),
     );
+  }
+
+  IconData _getIconData(String iconName) {
+    const iconMap = {
+      'plumbing': Icons.plumbing,
+      'electrical_services': Icons.electrical_services,
+      'cleaning_services': Icons.cleaning_services,
+      'construction': Icons.construction,
+      'ac_unit': Icons.ac_unit,
+      'format_paint': Icons.format_paint,
+      'pest_control': Icons.pest_control,
+      'yard': Icons.yard,
+      'move_to_inbox': Icons.move_to_inbox,
+      'home_repair_service': Icons.home_repair_service,
+      'build': Icons.build,
+      'brush': Icons.brush,
+      'bug_report': Icons.bug_report,
+      'grass': Icons.grass,
+      'local_shipping': Icons.local_shipping,
+    };
+    return iconMap[iconName] ?? Icons.category;
   }
 
   Widget _buildPromotionalBanner(ThemeData theme) {
@@ -649,23 +650,6 @@ class _ServiceListItem extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-            const SizedBox(width: 8),
-            ElevatedButton(
-              onPressed: onTap,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                textStyle: GoogleFonts.poppins(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              child: const Text('View Page'),
             ),
           ],
         ),

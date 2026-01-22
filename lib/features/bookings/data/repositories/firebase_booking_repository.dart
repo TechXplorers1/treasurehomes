@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/booking_entity.dart';
 import 'booking_repository.dart';
 
@@ -84,10 +83,27 @@ class FirebaseBookingRepository implements BookingRepository {
     return bookings;
   }
 
+  @override
+  Future<void> updateBookingStatus(
+    String bookingId,
+    BookingStatus status,
+  ) async {
+    try {
+      await _firestore.collection('bookings').doc(bookingId).update({
+        'status': status.toString().split('.').last,
+      });
+    } catch (e) {
+      throw Exception('Failed to update booking status: $e');
+    }
+  }
+
   BookingStatus _parseStatus(String status) {
     switch (status.toLowerCase()) {
       case 'confirmed':
         return BookingStatus.confirmed;
+      case 'workinprogress':
+      case 'work in progress':
+        return BookingStatus.workInProgress;
       case 'completed':
         return BookingStatus.completed;
       case 'cancelled':

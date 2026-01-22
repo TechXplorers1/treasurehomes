@@ -23,4 +23,27 @@ class MockBookingRepository implements BookingRepository {
     await Future.delayed(const Duration(milliseconds: 500));
     return _bookings;
   }
+
+  @override
+  Future<void> updateBookingStatus(
+    String bookingId,
+    BookingStatus status,
+  ) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    final index = _bookings.indexWhere((b) => b.id == bookingId);
+    if (index != -1) {
+      final oldBooking = _bookings[index];
+      _bookings[index] = BookingEntity(
+        id: oldBooking.id,
+        userId: oldBooking.userId,
+        serviceId: oldBooking.serviceId,
+        serviceName: oldBooking.serviceName,
+        bookingDate: oldBooking.bookingDate,
+        address: oldBooking.address,
+        notes: oldBooking.notes,
+        status: status,
+        totalPrice: oldBooking.totalPrice,
+      );
+    }
+  }
 }

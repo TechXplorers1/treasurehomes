@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../services/presentation/providers/service_providers.dart';
-import 'add_edit_service_page.dart';
 import '../../../services/domain/entities/service_entity.dart';
+import '../../presentation/widgets/premium_card.dart';
 
 class AdminServicesPage extends ConsumerWidget {
   const AdminServicesPage({super.key});
@@ -10,69 +11,171 @@ class AdminServicesPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final servicesAsync = ref.watch(servicesProvider);
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Manage Services')),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddEditServicePage()),
-          );
-        },
-        child: const Icon(Icons.add),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => context.push('/admin/services/add'),
+        icon: const Icon(Icons.add),
+        label: const Text('Add Service'),
+        backgroundColor: theme.primaryColor,
+        foregroundColor: Colors.white,
       ),
       body: servicesAsync.when(
         data: (services) {
           if (services.isEmpty) {
-            return const Center(child: Text('No services found. Add one!'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.design_services_outlined,
+                    size: 64,
+                    color: theme.disabledColor,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No services found.',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      color: theme.disabledColor,
+                    ),
+                  ),
+                ],
+              ),
+            );
           }
-          return ListView.builder(
-            itemCount: services.length,
+
+          return ListView.separated(
             padding: const EdgeInsets.all(16),
+            itemCount: services.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 16),
             itemBuilder: (context, index) {
               final service = services[index];
-              return Card(
-                elevation: 2,
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.blue.shade50,
-                    child: Icon(Icons.work, color: Colors.blue),
-                  ),
-                  title: Text(
-                    service.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text('\$${service.price} - ${service.category}'),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  AddEditServicePage(service: service),
+              return PremiumCard(
+                padding: EdgeInsets.zero,
+                child: Column(
+                  children: [
+                    if (service.imageUrl != null)
+                      ClipRRect(
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(16),
+                        ),
+                        child: Image.network(
+                          service.imageUrl!,
+                          height: 150,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            height: 150,
+                            color: Colors.grey[300],
+                            child: const Center(
+                              child: Icon(Icons.image_not_supported, size: 48),
                             ),
-                          );
-                        },
+                          ),
+                        ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _confirmDelete(context, ref, service),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  service.name,
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.amber.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.star,
+                                      size: 16,
+                                      color: Colors.amber,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      service.rating.toString(),
+                                      style: const TextStyle(
+                                        color: Colors.amber,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            service.description,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.disabledColor,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '\$${service.price}',
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.primaryColor,
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.edit_outlined,
+                                      color: Colors.blue,
+                                    ),
+                                    onPressed: () {
+                                      context.push(
+                                        '/admin/services/edit/${service.id}',
+                                        extra: service,
+                                      );
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.red,
+                                    ),
+                                    onPressed: () =>
+                                        _confirmDelete(context, ref, service),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               );
             },
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error: $error')),
+        error: (error, _) => Center(child: Text('Error: $error')),
       ),
     );
   }
@@ -104,29 +207,8 @@ class AdminServicesPage extends ConsumerWidget {
     if (confirmed == true) {
       try {
         final repository = ref.read(serviceRepositoryProvider);
-        // Cast to FirestoreServiceRepository if needed, or update interface
-        // For now assuming dynamic dispatch or direct access if interface updated
-        // But better safely use the repository method if available
-        // Note: Repository interface might need delete method if using interface type
-
-        // Since we are using FirestoreServiceRepository via provider which returns ServiceRepository interface
-        // We need to make sure deleteService is in interface or cast it.
-        // Earlier I did NOT put deleteService in the interface file I wrote.
-        // So I must cast or update interface. Let's cast for now to be quick, or fix interface.
-        // Actually, let's try to call it dynamically or cast.
-
-        // Better approach: Cast to FirestoreServiceRepository
-        // But I need to import it.
-        // Or simpler: Just update the interface now.
-
-        // Let's rely on dynamic for a second or better, FIX THE INTERFACE in next step.
-        // For this file, I will assume the interface has it or I will cast.
-
-        // Let's use 'as dynamic' for now to avoid compilation error if interface doesn't have it yet.
         await (repository as dynamic).deleteService(service.id);
-
-        await ref.refresh(servicesProvider);
-
+        ref.invalidate(servicesProvider);
         if (context.mounted) {
           ScaffoldMessenger.of(
             context,

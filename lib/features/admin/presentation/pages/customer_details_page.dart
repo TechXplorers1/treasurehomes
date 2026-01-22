@@ -233,6 +233,9 @@ class _BookingCard extends StatelessWidget {
       case BookingStatus.cancelled:
         statusColor = Colors.red;
         break;
+      case BookingStatus.workInProgress:
+        statusColor = Colors.purple;
+        break;
       case BookingStatus.completed:
         statusColor = Colors.blue;
         break;
