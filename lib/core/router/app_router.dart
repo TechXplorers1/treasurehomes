@@ -29,13 +29,12 @@ import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/auth/domain/entities/user_entity.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateProvider);
   final rootNavigatorKey = GlobalKey<NavigatorState>();
 
   return GoRouter(
     navigatorKey: rootNavigatorKey,
     initialLocation: '/',
-    refreshListenable: _AuthStateListenable(authState),
+    refreshListenable: _AuthStateListenable(ref),
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
@@ -165,6 +164,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ],
     redirect: (context, state) {
+      final authState = ref.read(authStateProvider);
+
       if (authState.isLoading || authState.hasError) return null;
 
       final isAuthenticated = authState.value != null;
@@ -182,8 +183,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (user?.role == UserRole.admin) {
         // If admin is at root, go to admin dashboard
         if (state.uri.path == '/') return '/admin';
-        // If admin tries to go to customer pages (simple prevention, optional)
-        // For now, allow admin to explore but default to /admin
       } else {
         // Customer trying to access admin
         if (state.uri.path.startsWith('/admin')) return '/';
@@ -200,12 +199,11 @@ final routerProvider = Provider<GoRouter>((ref) {
 });
 
 class _AuthStateListenable extends ChangeNotifier {
-  final AsyncValue<UserEntity?> authState;
+  final Ref ref;
 
-  _AuthStateListenable(this.authState);
-
-  @override
-  void notifyListeners() {
-    super.notifyListeners();
+  _AuthStateListenable(this.ref) {
+    ref.listen(authStateProvider, (previous, next) {
+      notifyListeners();
+    });
   }
 }
