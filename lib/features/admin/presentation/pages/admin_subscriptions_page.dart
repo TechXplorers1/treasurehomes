@@ -15,7 +15,7 @@ class AdminSubscriptionsPage extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: Colors.grey[50], // Light background
+      backgroundColor: Colors.grey[50], // Light background uyghjgjhgf
       appBar: AppBar(
         title: const Text('Manage Subscriptions'),
         backgroundColor: Colors.white,
