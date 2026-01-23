@@ -24,9 +24,7 @@ class AdminSubscriptionsPage extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () {
-              ref.refresh(subscriptionPlansProvider);
-            },
+            onPressed: () => ref.invalidate(subscriptionPlansProvider),
           ),
           PopupMenuButton<String>(
             onSelected: (value) {
@@ -51,7 +49,7 @@ class AdminSubscriptionsPage extends ConsumerWidget {
                   builder: (context) => const AddEditSubscriptionPage(),
                 ),
               )
-              .then((_) => ref.refresh(subscriptionPlansProvider));
+              .then((_) => ref.invalidate(subscriptionPlansProvider));
         },
         label: const Text('Add Plan'),
         icon: const Icon(Icons.add),
@@ -142,7 +140,8 @@ class AdminSubscriptionsPage extends ConsumerWidget {
                                 ),
                               )
                               .then(
-                                (_) => ref.refresh(subscriptionPlansProvider),
+                                (_) =>
+                                    ref.invalidate(subscriptionPlansProvider),
                               );
                         },
                       ),
@@ -219,7 +218,7 @@ class AdminSubscriptionsPage extends ConsumerWidget {
         await repo.addPlan(plan);
       }
 
-      ref.refresh(subscriptionPlansProvider);
+      ref.invalidate(subscriptionPlansProvider);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Default plans added successfully')),
@@ -255,7 +254,7 @@ class AdminSubscriptionsPage extends ConsumerWidget {
               try {
                 final repo = ref.read(firestoreSubscriptionRepositoryProvider);
                 await repo.deletePlan(plan.id);
-                ref.refresh(subscriptionPlansProvider);
+                ref.invalidate(subscriptionPlansProvider);
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Plan deleted successfully')),
