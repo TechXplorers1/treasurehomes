@@ -43,4 +43,15 @@ class AuthNotifier extends AsyncNotifier<UserEntity?> {
       return null;
     });
   }
+
+  Future<void> resetPassword(String email) async {
+    // We don't necessarily need to set global loading state for this,
+    // as it might clear the user session if we use AsyncValue.loading().
+    // Instead, we can just return the future and let UI handle loading.
+    // However, to keep it consistent via provider if we wanted,
+    // but usually forgot password is separate flow.
+    // Let's just return the Future and NOT update the main auth state (user).
+
+    await _authRepository.resetPassword(email);
+  }
 }

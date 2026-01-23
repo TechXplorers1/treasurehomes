@@ -7,6 +7,7 @@ class ServiceContentPage extends StatelessWidget {
   final String serviceName;
   final String content;
   final double price;
+  final String? imageUrl;
 
   const ServiceContentPage({
     super.key,
@@ -14,6 +15,7 @@ class ServiceContentPage extends StatelessWidget {
     required this.serviceName,
     required this.content,
     required this.price,
+    this.imageUrl,
   });
 
   @override
@@ -28,6 +30,31 @@ class ServiceContentPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (imageUrl != null) ...[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        imageUrl!,
+                        height: 200,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 200,
+                            width: double.infinity,
+                            color: Colors.grey[200],
+                            child: const Center(
+                              child: Icon(
+                                Icons.image_not_supported,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                   Text(
                     'Service Details',
                     style: GoogleFonts.poppins(

@@ -7,6 +7,8 @@ import 'package:image_picker/image_picker.dart';
 import '../../../services/domain/entities/service_entity.dart';
 import '../../../services/presentation/providers/service_providers.dart';
 
+import '../../../categories/presentation/providers/category_provider.dart';
+
 class AddEditServicePage extends ConsumerStatefulWidget {
   final ServiceEntity? service;
 
@@ -23,19 +25,10 @@ class _AddEditServicePageState extends ConsumerState<AddEditServicePage> {
   late TextEditingController _detailedDescriptionController;
   late TextEditingController _priceController;
   late TextEditingController _imageUrlController;
-  String _selectedCategory = 'Plumbing';
+  String? _selectedCategory;
   bool _isLoading = false;
   File? _imageFile;
   bool _isUploading = false;
-
-  final List<String> _categories = [
-    'Plumbing',
-    'Electrical',
-    'Cleaning',
-    'Remodeling',
-    'HVAC',
-    'Other',
-  ];
 
   @override
   void initState() {
@@ -53,14 +46,12 @@ class _AddEditServicePageState extends ConsumerState<AddEditServicePage> {
     _imageUrlController = TextEditingController(
       text: widget.service?.imageUrl ?? '',
     );
-    if (widget.service != null) {
-      if (_categories.contains(widget.service!.category)) {
-        _selectedCategory = widget.service!.category;
-      } else {
-        _categories.add(widget.service!.category);
-        _selectedCategory = widget.service!.category;
-      }
-    }
+    _selectedCategory = widget.service?.category;
+
+    // Trigger check/seed if needed (safe to call here)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(checkAndSeedCategoriesProvider);
+    });
   }
 
   @override
@@ -134,7 +125,7 @@ class _AddEditServicePageState extends ConsumerState<AddEditServicePage> {
         name: name,
         description: description,
         price: price,
-        category: _selectedCategory,
+        category: _selectedCategory ?? 'Other',
         rating: widget.service?.rating,
         imageUrl: imageUrl.isNotEmpty ? imageUrl : null,
         detailedDescription: detailedDescription,
@@ -176,6 +167,8 @@ class _AddEditServicePageState extends ConsumerState<AddEditServicePage> {
 
   @override
   Widget build(BuildContext context) {
+    final categoriesAsync = ref.watch(categoriesProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.service == null ? 'Add Service' : 'Edit Service'),
@@ -187,6 +180,7 @@ class _AddEditServicePageState extends ConsumerState<AddEditServicePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // ... text fields ...
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
@@ -246,23 +240,57 @@ class _AddEditServicePageState extends ConsumerState<AddEditServicePage> {
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: DropdownButtonFormField<String>(
-                      value: _selectedCategory,
-                      decoration: const InputDecoration(
-                        labelText: 'Category',
-                        border: OutlineInputBorder(),
-                      ),
-                      items: _categories.map((String category) {
-                        return DropdownMenuItem<String>(
-                          value: category,
-                          child: Text(category),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        if (newValue != null) {
-                          setState(() => _selectedCategory = newValue);
+                    child: categoriesAsync.when(
+                      data: (categories) {
+                        // Ensure selected category is valid or null
+                        if (_selectedCategory != null &&
+                            !categories.any(
+                              (c) => c.name == _selectedCategory,
+                            )) {
+                          // Keep it if editing, maybe it was deleted?
+                          // But usually we should force pick a valid one.
+                          // For now, let's keep it to act as "Other" or let user change it.
+                          // actually, DropdownButton will crash if value is not in items.
+                          // So we must add it or nullify it.
+                          // Simpler: Just rely on user to pick.
+                          // If valid, use it.
                         }
+
+                        final uniqueCategories = categories
+                            .map((c) => c.name)
+                            .toSet()
+                            .toList();
+                        // Add selected if not in list (to avoid crash), or handle it.
+                        if (_selectedCategory != null &&
+                            !uniqueCategories.contains(_selectedCategory)) {
+                          uniqueCategories.add(_selectedCategory!);
+                        }
+
+                        return DropdownButtonFormField<String>(
+                          value: _selectedCategory,
+                          decoration: const InputDecoration(
+                            labelText: 'Category',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: uniqueCategories.map((String category) {
+                            return DropdownMenuItem<String>(
+                              value: category,
+                              child: Text(category),
+                            );
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            if (newValue != null) {
+                              setState(() => _selectedCategory = newValue);
+                            }
+                          },
+                          validator: (value) => value == null || value.isEmpty
+                              ? 'Please select a category'
+                              : null,
+                        );
                       },
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
+                      error: (err, _) => Text('Error loading categories'),
                     ),
                   ),
                 ],

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../auth/presentation/providers/auth_provider.dart';
 import '../../services/presentation/providers/service_providers.dart';
 import '../../categories/presentation/providers/category_provider.dart';
+import '../../subscriptions/presentation/widgets/subscription_plans_widget.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -51,6 +52,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   _buildCategoriesList(context),
                   const SizedBox(height: 30),
                   _buildPromotionalBanner(theme),
+                  const SizedBox(height: 30),
+                  const SubscriptionPlansWidget(),
                   const SizedBox(height: 30),
                   _buildSectionHeader(context, 'Most Popular', () {}),
                   const SizedBox(height: 16),

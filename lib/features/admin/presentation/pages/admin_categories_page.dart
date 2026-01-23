@@ -82,7 +82,7 @@ class AdminCategoriesPage extends ConsumerWidget {
                     ),
                   ),
                   subtitle: Text(
-                    'ID: ${category.id.substring(0, 8)}...',
+                    'ID: ${category.id.length > 8 ? category.id.substring(0, 8) : category.id}...',
                     style: TextStyle(color: theme.disabledColor),
                   ),
                   trailing: Row(

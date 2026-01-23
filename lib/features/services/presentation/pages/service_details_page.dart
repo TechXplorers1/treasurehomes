@@ -41,14 +41,37 @@ class ServiceDetailsPage extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Hero Image (Placeholder)
-                Container(
-                  height: 200,
-                  width: double.infinity,
-                  color: Colors.grey[300],
-                  child: const Center(
-                    child: Icon(Icons.image, size: 64, color: Colors.grey),
+                // Hero Image
+                if (service.imageUrl != null)
+                  Image.network(
+                    service.imageUrl!,
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 200,
+                        width: double.infinity,
+                        color: Colors.grey[300],
+                        child: const Center(
+                          child: Icon(
+                            Icons.broken_image,
+                            size: 64,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      );
+                    },
+                  )
+                else
+                  Container(
+                    height: 200,
+                    width: double.infinity,
+                    color: Colors.grey[300],
+                    child: const Center(
+                      child: Icon(Icons.image, size: 64, color: Colors.grey),
+                    ),
                   ),
-                ),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -103,6 +126,7 @@ class ServiceDetailsPage extends ConsumerWidget {
                                   serviceName: service.name,
                                   content: service.detailedDescription ?? '',
                                   price: service.price,
+                                  imageUrl: service.imageUrl,
                                 ),
                               ),
                             );

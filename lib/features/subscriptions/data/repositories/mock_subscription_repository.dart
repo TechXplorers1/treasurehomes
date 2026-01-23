@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/subscription_plan_entity.dart';
+import 'firestore_subscription_repository.dart';
 
 abstract class SubscriptionRepository {
   Future<List<SubscriptionPlanEntity>> getPlans();
@@ -12,7 +13,7 @@ class MockSubscriptionRepository implements SubscriptionRepository {
     return const [
       SubscriptionPlanEntity(
         id: '1',
-        name: 'Basic Home Care',
+        name: 'Basic Home Care (Mock)',
         description: 'Essential maintenance for your home.',
         price: 29.99,
         duration: 'Monthly',
@@ -22,37 +23,12 @@ class MockSubscriptionRepository implements SubscriptionRepository {
           '5% Discount on Services',
         ],
       ),
-      SubscriptionPlanEntity(
-        id: '2',
-        name: 'Premium Home Shield',
-        description: 'Complete peace of mind for your household.',
-        price: 49.99,
-        duration: 'Monthly',
-        features: [
-          'Unlimited Checks',
-          'Priority Booking',
-          '15% Discount on Services',
-          'Free Minor Repairs',
-        ],
-      ),
-      SubscriptionPlanEntity(
-        id: '3',
-        name: 'Annual Value',
-        description: 'Best value for year-round protection.',
-        price: 499.99,
-        duration: 'Yearly',
-        features: [
-          'All Premium Features',
-          '2 Months Free',
-          'Dedicated Manager',
-        ],
-      ),
     ];
   }
 }
 
 final subscriptionRepositoryProvider = Provider<SubscriptionRepository>((ref) {
-  return MockSubscriptionRepository();
+  return ref.watch(firestoreSubscriptionRepositoryProvider);
 });
 
 final subscriptionPlansProvider = FutureProvider<List<SubscriptionPlanEntity>>((

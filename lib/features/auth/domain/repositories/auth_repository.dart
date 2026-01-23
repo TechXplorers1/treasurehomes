@@ -5,4 +5,5 @@ abstract class AuthRepository {
   Future<UserEntity> signUp(String name, String email, String password);
   Future<void> logout();
   Future<UserEntity?> getCurrentUser();
+  Future<void> resetPassword(String email);
 }

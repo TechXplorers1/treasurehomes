@@ -63,4 +63,10 @@ class MockAuthRepository implements AuthRepository {
     _currentUser = newUser;
     return newUser;
   }
+
+  @override
+  Future<void> resetPassword(String email) async {
+    await Future.delayed(const Duration(seconds: 1));
+    // Simulate sending email success
+  }
 }

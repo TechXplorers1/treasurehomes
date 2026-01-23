@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../presentation/widgets/premium_card.dart';
-import 'admin_services_page.dart';
+import 'admin_subscriptions_page.dart';
+import 'admin_subscriptions_page.dart';
 
 class AdminDashboardPage extends ConsumerWidget {
   const AdminDashboardPage({super.key});
@@ -106,21 +107,27 @@ class AdminDashboardPage extends ConsumerWidget {
                 context,
                 icon: Icons.room_service_rounded,
                 title: 'Manage Services',
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AdminServicesPage(),
-                    ),
-                  );
-                },
+                path: '/admin/services',
               ),
               _buildDrawerItem(
                 context,
                 icon: Icons.category_rounded,
                 title: 'Manage Categories',
                 path: '/admin/categories',
+              ),
+              _buildDrawerItem(
+                context,
+                icon: Icons.card_membership_rounded,
+                title: 'Manage Subscriptions',
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AdminSubscriptionsPage(),
+                    ),
+                  );
+                },
               ),
               _buildDrawerItem(
                 context,

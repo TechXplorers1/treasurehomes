@@ -19,8 +19,12 @@ import '../../features/admin/presentation/pages/admin_categories_page.dart';
 import '../../features/admin/presentation/pages/add_edit_category_page.dart';
 import '../../features/categories/domain/entities/category_entity.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/admin/presentation/pages/admin_services_page.dart';
+import '../../features/admin/presentation/pages/add_edit_service_page.dart';
+import '../../features/services/domain/entities/service_entity.dart';
 
 import '../../features/auth/presentation/pages/signup_page.dart';
+import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/auth/domain/entities/user_entity.dart';
 
@@ -66,6 +70,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
       GoRoute(path: '/signup', builder: (context, state) => const SignupPage()),
+      GoRoute(
+        path: '/forgot-password',
+        builder: (context, state) => const ForgotPasswordPage(),
+      ),
       GoRoute(
         path: '/service/:id',
         builder: (context, state) {
@@ -136,6 +144,23 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
+          GoRoute(
+            path: 'services',
+            builder: (context, state) => const AdminServicesPage(),
+            routes: [
+              GoRoute(
+                path: 'add',
+                builder: (context, state) => const AddEditServicePage(),
+              ),
+              GoRoute(
+                path: 'edit/:id',
+                builder: (context, state) {
+                  final service = state.extra as ServiceEntity?;
+                  return AddEditServicePage(service: service);
+                },
+              ),
+            ],
+          ),
         ],
       ),
     ],
@@ -145,7 +170,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isAuthenticated = authState.value != null;
       final user = authState.value;
       final isLoggingIn =
-          state.uri.path == '/login' || state.uri.path == '/signup';
+          state.uri.path == '/login' ||
+          state.uri.path == '/signup' ||
+          state.uri.path == '/forgot-password';
 
       if (!isAuthenticated) {
         return isLoggingIn ? null : '/login';
