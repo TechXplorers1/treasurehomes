@@ -31,7 +31,7 @@ class AppTheme {
         onPrimary: Colors.white,
         onSurface: textPrimaryLight,
       ),
-      textTheme: GoogleFonts.outfitTextTheme(
+      textTheme: GoogleFonts.poppinsTextTheme(
         ThemeData.light().textTheme,
       ).apply(bodyColor: textPrimaryLight, displayColor: textPrimaryLight),
       appBarTheme: const AppBarTheme(
@@ -46,7 +46,7 @@ class AppTheme {
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          textStyle: GoogleFonts.outfit(fontWeight: FontWeight.w600),
+          textStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -86,7 +86,7 @@ class AppTheme {
         onPrimary: Colors.black,
         onSurface: textPrimaryDark,
       ),
-      textTheme: GoogleFonts.outfitTextTheme(
+      textTheme: GoogleFonts.poppinsTextTheme(
         ThemeData.dark().textTheme,
       ).apply(bodyColor: textPrimaryDark, displayColor: textPrimaryDark),
       appBarTheme: const AppBarTheme(
@@ -101,7 +101,7 @@ class AppTheme {
           foregroundColor: Colors.black,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          textStyle: GoogleFonts.outfit(fontWeight: FontWeight.w600),
+          textStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(

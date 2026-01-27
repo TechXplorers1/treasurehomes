@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 import '../../bookings/presentation/providers/booking_provider.dart';
 
 class BookingsScreen extends ConsumerWidget {
@@ -11,7 +12,13 @@ class BookingsScreen extends ConsumerWidget {
     final bookingsAsync = ref.watch(userBookingsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Bookings')),
+      appBar: AppBar(
+        title: const Text('My Bookings'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+        ),
+      ),
       body: bookingsAsync.when(
         data: (bookings) {
           if (bookings.isEmpty) {

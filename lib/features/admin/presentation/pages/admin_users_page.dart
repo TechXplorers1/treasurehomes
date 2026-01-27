@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import 'customer_details_page.dart';
+import 'add_user_page.dart';
 
 final adminUsersStreamProvider = StreamProvider<List<UserEntity>>((ref) {
   return FirebaseFirestore.instance.collection('users').snapshots().map((
@@ -14,6 +15,7 @@ final adminUsersStreamProvider = StreamProvider<List<UserEntity>>((ref) {
         id: doc.id,
         email: data['email'] ?? '',
         name: data['name'] ?? 'Unknown',
+        phoneNumber: data['phoneNumber'],
         role: _parseUserRole(data['role'] ?? 'customer'),
         createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       );
@@ -42,6 +44,16 @@ class AdminUsersPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Manage Customers')),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddUserPage()),
+          );
+        },
+        label: const Text('Add User'),
+        icon: const Icon(Icons.add),
+      ),
       body: usersAsync.when(
         data: (users) {
           if (users.isEmpty) {

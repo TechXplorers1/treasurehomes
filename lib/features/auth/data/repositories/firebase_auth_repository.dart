@@ -1,11 +1,74 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 
 class FirebaseAuthRepository implements AuthRepository {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  @override
+  Future<UserEntity> createUserByAdmin(
+    String name,
+    String email,
+    String password,
+    String phoneNumber,
+    UserRole role,
+  ) async {
+    FirebaseApp? secondaryApp;
+    try {
+      // 1. Initialize a secondary Firebase App
+      secondaryApp = await Firebase.initializeApp(
+        name: 'SecondaryApp',
+        options: Firebase.app().options,
+      );
+
+      // 2. Create the user in Firebase Auth using the secondary app
+      final secondaryAuth = FirebaseAuth.instanceFor(app: secondaryApp);
+      final userCredential = await secondaryAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      final user = userCredential.user;
+      if (user == null) {
+        throw Exception('Failed to create user in Firebase Auth');
+      }
+
+      // 3. Update Display Name (optional but good practice)
+      await user.updateDisplayName(name);
+
+      // 4. Create the user document in Firestore (using the MAIN app's Firestore)
+      // We use the UID from the newly created user
+      final userEntity = UserEntity(
+        id: user.uid,
+        email: email,
+        name: name,
+        phoneNumber: phoneNumber,
+        role: role,
+        createdAt: DateTime.now(),
+      );
+
+      await _firestore.collection('users').doc(user.uid).set({
+        'id': user.uid,
+        'email': email,
+        'name': name,
+        'phoneNumber': phoneNumber,
+        'role': role.name, // Store role as string
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      return userEntity;
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    } catch (e) {
+      throw Exception('Failed to create user: $e');
+    } finally {
+      // 5. Delete the secondary app instance to clean up
+      await secondaryApp?.delete();
+    }
+  }
 
   @override
   Future<UserEntity> signUp(String name, String email, String password) async {
@@ -77,6 +140,7 @@ class FirebaseAuthRepository implements AuthRepository {
           id: user.uid,
           email: user.email ?? '',
           name: data['name'] ?? user.displayName ?? 'User',
+          phoneNumber: data['phoneNumber'],
           role: role,
         );
       }
@@ -134,6 +198,7 @@ class FirebaseAuthRepository implements AuthRepository {
           id: user.uid,
           email: user.email ?? '',
           name: data['name'] ?? user.displayName ?? 'User',
+          phoneNumber: data['phoneNumber'],
           role: role,
         );
       }

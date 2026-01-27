@@ -69,4 +69,15 @@ class MockAuthRepository implements AuthRepository {
     await Future.delayed(const Duration(seconds: 1));
     // Simulate sending email success
   }
+
+  @override
+  Future<UserEntity> createUserByAdmin(
+    String name,
+    String email,
+    String password,
+    String phoneNumber,
+    UserRole role,
+  ) async {
+    throw UnimplementedError();
+  }
 }

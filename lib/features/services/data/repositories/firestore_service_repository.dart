@@ -33,6 +33,7 @@ class FirestoreServiceRepository implements ServiceRepository {
     }
   }
 
+  @override
   Future<void> addService(ServiceEntity service) async {
     try {
       // Use toFirestore from ServiceModel
@@ -53,6 +54,7 @@ class FirestoreServiceRepository implements ServiceRepository {
     }
   }
 
+  @override
   Future<void> updateService(ServiceEntity service) async {
     try {
       final serviceModel = ServiceModel(
@@ -75,6 +77,7 @@ class FirestoreServiceRepository implements ServiceRepository {
     }
   }
 
+  @override
   Future<void> deleteService(String id) async {
     try {
       await _firestore.collection(_collection).doc(id).delete();

@@ -134,6 +134,8 @@ class CustomerDetailsPage extends ConsumerWidget {
             const Divider(height: 32),
             _buildInfoRow('Registration Date', registrationDate),
             const SizedBox(height: 8),
+            _buildInfoRow('Phone', user.phoneNumber ?? 'N/A'),
+            const SizedBox(height: 8),
             _buildInfoRow('Account ID', user.id),
           ],
         ),

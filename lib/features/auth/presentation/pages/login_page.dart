@@ -43,9 +43,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     ref.listen(authStateProvider, (previous, next) {
       next.whenOrNull(
         error: (error, stack) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(error.toString())));
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Login Failed'),
+              content: Text(error.toString().replaceAll('Exception: ', '')),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
         },
         data: (user) {
           if (user != null) {
@@ -98,8 +108,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           prefixIcon: Icon(Icons.email_outlined),
                         ),
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return 'Please enter email';
+                          }
                           return null;
                         },
                       ),
@@ -124,8 +135,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                         obscureText: !_isPasswordVisible,
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return 'Please enter password';
+                          }
                           return null;
                         },
                       ),
@@ -154,7 +166,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       ),
                       const SizedBox(height: 16),
                       TextButton(
-                        onPressed: () => context.go('/signup'),
+                        onPressed: () => context.push('/signup'),
                         child: const Text("Don't have an account? Sign Up"),
                       ),
                     ],

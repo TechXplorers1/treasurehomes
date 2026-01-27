@@ -56,13 +56,40 @@ class _SignupPageState extends ConsumerState<SignupPage> {
         },
         data: (user) {
           if (user != null) {
-            context.go('/');
+            // Show success message and redirect to login
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => AlertDialog(
+                title: const Text('Success'),
+                content: const Text('Account Successfully created'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context); // Close dialog
+                      // Sign out to require fresh login
+                      ref.read(authStateProvider.notifier).logout().then((_) {
+                        if (context.mounted) {
+                          context.go('/login');
+                        }
+                      });
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              ),
+            );
           }
         },
       );
     });
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: BackButton(color: theme.colorScheme.onSurface),
+      ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -105,8 +132,9 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                           prefixIcon: Icon(Icons.person_outline),
                         ),
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return 'Please enter name';
+                          }
                           return null;
                         },
                       ),
@@ -118,8 +146,9 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                           prefixIcon: Icon(Icons.email_outlined),
                         ),
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return 'Please enter email';
+                          }
                           return null;
                         },
                       ),
@@ -144,10 +173,12 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                         ),
                         obscureText: !_isPasswordVisible,
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return 'Please enter password';
-                          if (value.length < 6)
+                          }
+                          if (value.length < 6) {
                             return 'Password must be at least 6 characters';
+                          }
                           return null;
                         },
                       ),
@@ -173,10 +204,12 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                         ),
                         obscureText: !_isConfirmPasswordVisible,
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return 'Please confirm password';
-                          if (value != _passwordController.text)
+                          }
+                          if (value != _passwordController.text) {
                             return 'Passwords do not match';
+                          }
                           return null;
                         },
                       ),
